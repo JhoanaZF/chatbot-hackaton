@@ -17,34 +17,6 @@ type Message = {
   timestamp: Date
 }
 
-const initialMessages: Message[] = [
-  // {
-  //   id: '1',
-  //   content: 'Ayuda BCP 👋',
-  //   sender: 'user',
-  //   timestamp: new Date(Date.now() - 1000 * 60 * 3)
-  // },
-  // {
-  //   id: '2',
-  //   content:
-  //     'Hola, soy tu asistente antifraude. Antes de empezar, quiero conocer tu nivel de seguridad digital. ¿Listo para un mini test? 🙌',
-  //   sender: 'bot',
-  //   timestamp: new Date(Date.now() - 1000 * 60 * 5)
-  // },
-  // {
-  //   id: '3',
-  //   content: 'Si',
-  //   sender: 'user',
-  //   timestamp: new Date(Date.now() - 1000 * 60 * 4)
-  // },
-  // {
-  //   id: '4',
-  //   content: 'Genial, comenzamos👍',
-  //   sender: 'bot',
-  //   timestamp: new Date(Date.now() - 1000 * 60 * 2)
-  // }
-]
-
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
@@ -77,7 +49,7 @@ export default function ChatInterface() {
     })
     return response.json()
   }
-  const { mutate, isPending, data } = useMutation({
+  const { mutate, data } = useMutation({
     mutationFn: apiGateway,
     onSuccess: (data) => {
       const botResponse: Message = {
