@@ -6,6 +6,6 @@ El 61% de las mujeres peruanas que usan banca móvil reportan haber recibido men
 
 ¿Cómo podemos diseñar soluciones innovadoras para prevenir fraudes en transacciones digitales y proteger a los usuarios en tiempo real? Las soluciones pueden incluir mejoras en autenticación, detección de actividad sospechosa, educación del usuario o mecanismos avanzados de seguridad.
 
-|Prototipo -> [Figma]([https://www.figma.com/file/iqNb4bIsn1cE9LKmeFoqJb/data-lover-harry?node-id=0-1&t=lylvbfcNodgK1Hua-0](https://www.figma.com/proto/OFpuqpi4mdtyUyx3Epf7QR/Hackaton-BCP?node-id=36-9&t=uAijTeBLSpwffJeo-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=42%3A10))  |
+|Prototipo -> [Figma](https://www.figma.com/proto/OFpuqpi4mdtyUyx3Epf7QR/Hackaton-BCP?node-id=83-147&t=uAijTeBLSpwffJeo-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=42%3A10)  |
 |----------|
-|![Figma](/img/FIGMA.png)     |
+|![Figma](/img/BCPCHAT.png)     |
