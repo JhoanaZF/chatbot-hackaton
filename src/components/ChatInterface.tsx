@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
+import { useMutation } from '@tanstack/react-query'
 
 type Message = {
   id: string
@@ -17,38 +18,77 @@ type Message = {
 }
 
 const initialMessages: Message[] = [
-  {
-    id: '1',
-    content: 'Ayuda BCP 👋',
-    sender: 'user',
-    timestamp: new Date(Date.now() - 1000 * 60 * 3)
-  },
-  {
-    id: '2',
-    content:
-      'Hola, soy tu asistente antifraude. Antes de empezar, quiero conocer tu nivel de seguridad digital. ¿Listo para un mini test? 🙌',
-    sender: 'bot',
-    timestamp: new Date(Date.now() - 1000 * 60 * 5)
-  },
-  {
-    id: '3',
-    content: 'Si',
-    sender: 'user',
-    timestamp: new Date(Date.now() - 1000 * 60 * 4)
-  },
-  {
-    id: '4',
-    content: 'Genial, comenzamos👍',
-    sender: 'bot',
-    timestamp: new Date(Date.now() - 1000 * 60 * 2)
-  }
+  // {
+  //   id: '1',
+  //   content: 'Ayuda BCP 👋',
+  //   sender: 'user',
+  //   timestamp: new Date(Date.now() - 1000 * 60 * 3)
+  // },
+  // {
+  //   id: '2',
+  //   content:
+  //     'Hola, soy tu asistente antifraude. Antes de empezar, quiero conocer tu nivel de seguridad digital. ¿Listo para un mini test? 🙌',
+  //   sender: 'bot',
+  //   timestamp: new Date(Date.now() - 1000 * 60 * 5)
+  // },
+  // {
+  //   id: '3',
+  //   content: 'Si',
+  //   sender: 'user',
+  //   timestamp: new Date(Date.now() - 1000 * 60 * 4)
+  // },
+  // {
+  //   id: '4',
+  //   content: 'Genial, comenzamos👍',
+  //   sender: 'bot',
+  //   timestamp: new Date(Date.now() - 1000 * 60 * 2)
+  // }
 ]
 
 export default function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>(initialMessages)
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isMinimized, setIsMinimized] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const slots = {
+    'RegistrarUsuario': null,
+    'Confirmacionpromt': null,
+    'PreguntaActual': null,
+    'RespuestaUsuario': null
+  }
+
+  const apiGateway = async (slots: any) => {
+    const response = await fetch('https://65we2pi9nd.execute-api.us-east-1.amazonaws.com/NewAPI', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': 'qOBf0phZRE6wnWq64wRye1tqbT27uPw1176XFgKX'
+      },
+      body: JSON.stringify({
+        'sessionState': {
+          'intent': {
+            'name': 'TestAntifraude',
+            'slots': slots,
+            'state': 'InProgress'
+          }
+        }
+      })
+    })
+    return response.json()
+  }
+  const { mutate, isPending, data } = useMutation({
+    mutationFn: apiGateway,
+    onSuccess: (data) => {
+      const botResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: data.messages[0].content,
+        sender: 'bot',
+        timestamp: new Date()
+      }
+      setMessages((prevMessages) => [...prevMessages, botResponse])
+    }
+  })
 
   const handleSendMessage = () => {
     if (inputValue.trim() === '') return
@@ -62,16 +102,41 @@ export default function ChatInterface() {
 
     setMessages([...messages, newMessage])
     setInputValue('')
+    if (data) {
+      let slotActual = {}
 
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: 'Perfecto, continuemos',
-        sender: 'bot',
-        timestamp: new Date()
+      if (data.sessionState.dialogAction.slotToElicit === 'PreguntaActual') {
+        const numeroPregunta = data.messages[0].content.match(/Pregunta (\d+)/)?.[1] // Captura el número de la pregunta (1 o más dígitos)
+
+        slotActual = {
+          ...data.sessionState.intent.slots,
+          'PreguntaActual': {
+            value: {
+              interpretedValue: numeroPregunta
+            }
+          },
+          'RespuestaUsuario': {
+            value: {
+              interpretedValue: inputValue
+            }
+          }
+        }
+      } else {
+        slotActual = {
+          ...slots,
+          ...data.sessionState.intent.slots,
+          [data.sessionState.dialogAction.slotToElicit]: {
+            value: {
+              interpretedValue: inputValue
+            }
+          }
+        }
       }
-      setMessages((prevMessages) => [...prevMessages, botResponse])
-    }, 1000)
+
+      mutate(slotActual)
+    } else {
+      mutate(slots)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
